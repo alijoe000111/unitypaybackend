@@ -1,0 +1,22 @@
+{
+  "name": "orbitpay-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "tsc-compile-w": "tsc ./src --watch",
+    "start": "nodemon ./app"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^2.0.19",
+    "typescript": "^4.7.4"
+  },
+  "dependencies": {
+    "@types/express": "^4.17.13",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1"
+  }
+}
