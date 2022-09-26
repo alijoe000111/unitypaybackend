@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "tsc-w": "tsc --watch",
-    "start": "nodemon ./app/app.js"
+    "start:dev": "nodemon ./app/app.js",
+    "start": "node ./app/app.js"
   },
   "keywords": [],
   "author": "",
