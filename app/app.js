@@ -82,8 +82,10 @@ const errorHandler = (err, _, res, _1) => {
     });
 };
 app.use(errorHandler);
-app.listen(33000, async () => {
-    const processEnv = process.env;
+const processEnv = process.env;
+const PORT = processEnv.PORT || 33000;
+app.listen(PORT, async () => {
+    console.log(`Listening on ${PORT}`);
     const mongoConnect = await mongoose_1.default.connect(processEnv.MONGODB_URI);
     if (!mongoConnect) {
         console.log("ERROR CONNECTING TO MONGODB");
