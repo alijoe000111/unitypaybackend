@@ -84,7 +84,7 @@ const errorHandler: ErrorRequestHandler = (
 };
 app.use(errorHandler);
 
-app.listen(33000, async () => {
+app.listen(process.env.PORT || 33000, async () => {
   const processEnv = process.env;
   const mongoConnect = await mongoose.connect(processEnv.MONGODB_URI);
 
