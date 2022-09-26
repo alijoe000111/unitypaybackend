@@ -37,7 +37,10 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const transaction_1 = __importDefault(require("./routes/transaction"));
 const app = (0, express_1.default)();
 app.use((req, res, next) => {
-    res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000, https://orbitpay.netlify.app");
+    const allowedOrigin = ["http://localhost:3000, https://orbitpay.netlify.app"];
+    res.setHeader("Access-Control-Allow-Origin", allowedOrigin.includes(req.headers.origin || "")
+        ? req.headers.origin || ""
+        : "");
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
     if (req.method === "OPTIONS") {

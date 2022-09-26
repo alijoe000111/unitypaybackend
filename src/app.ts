@@ -19,9 +19,13 @@ import TransactionRouter from "./routes/transaction";
 const app = express();
 
 app.use((req, res, next) => {
+  const allowedOrigin = ["http://localhost:3000, https://orbitpay.netlify.app"];
+
   res.setHeader(
     "Access-Control-Allow-Origin",
-    "http://localhost:3000, https://orbitpay.netlify.app"
+    allowedOrigin.includes(req.headers.origin || "")
+      ? req.headers.origin || ""
+      : ""
   );
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
