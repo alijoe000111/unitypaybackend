@@ -19,7 +19,10 @@ import TransactionRouter from "./routes/transaction";
 const app = express();
 
 app.use((req, res, next) => {
-  const allowedOrigin = ["http://localhost:3000, https://orbitpay.netlify.app"];
+  const allowedOrigin = [
+    "http://localhost:3000",
+    "https://orbitpay.netlify.app",
+  ];
   const origin = req.headers.origin!!;
 
   console.log("ORIGIN: " + origin);

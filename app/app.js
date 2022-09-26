@@ -37,7 +37,10 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const transaction_1 = __importDefault(require("./routes/transaction"));
 const app = (0, express_1.default)();
 app.use((req, res, next) => {
-    const allowedOrigin = ["http://localhost:3000, https://orbitpay.netlify.app"];
+    const allowedOrigin = [
+        "http://localhost:3000",
+        "https://orbitpay.netlify.app",
+    ];
     const origin = req.headers.origin;
     console.log("ORIGIN: " + origin);
     console.log("ORIGIN: " + allowedOrigin.includes(origin));
