@@ -24,37 +24,26 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
-//TODO: create in signup
 const Transaction = new mongoose_1.Schema({
-    owner: {
-        type: mongoose_1.default.Types.ObjectId,
-        ref: "Auth",
+    owner: { type: mongoose_1.default.Types.ObjectId, ref: "Auth", required: true },
+    transactionID: {
+        type: String,
         required: true,
     },
-    transactions: {
-        type: {
-            typeName: String,
-            type: String,
-            amount: Number,
-            status: { type: String, default: "Pending", required: false },
-            deliveredOn: { type: String, default: "-", required: false },
-            transferDate: {
-                type: String,
-                default: `${new Date().getFullYear()} - ${new Date().getMonth()} - ${new Date().getDate()}`,
-                required: false,
-            },
-            transferTime: {
-                type: String,
-                default: `${new Date().getHours()} : ${new Date().getMinutes()}`,
-                required: false,
-            },
-            transactionID: {
-                type: String,
-                default: Math.random().toString(32).slice(2),
-                required: false,
-            },
-        },
-        default: [],
+    typeName: String,
+    type: String,
+    amount: Number,
+    status: { type: String, default: "Pending", required: false },
+    deliveredOn: { type: String, default: "-", required: false },
+    transferDate: {
+        type: String,
+        default: `${new Date().getFullYear()} - ${new Date().getMonth()} - ${new Date().getDate()}`,
+        required: false,
+    },
+    transferTime: {
+        type: String,
+        default: `${new Date().getHours()} : ${new Date().getMinutes()}`,
+        required: false,
     },
 });
 exports.default = (0, mongoose_1.model)("Transaction", Transaction);

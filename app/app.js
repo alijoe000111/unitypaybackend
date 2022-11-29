@@ -42,8 +42,6 @@ app.use((req, res, next) => {
         "https://orbitpay.netlify.app",
     ];
     const origin = req.headers.origin;
-    console.log("ORIGIN: " + origin);
-    console.log("ORIGIN: " + allowedOrigin.includes(origin));
     res.setHeader("Access-Control-Allow-Origin", allowedOrigin.includes(origin) ? origin : allowedOrigin[1]);
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");

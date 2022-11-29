@@ -12,7 +12,7 @@ const addPayment = async (req, res, next) => {
     const { ownerID } = reqBody;
     type = reqBody.type;
     typeName = reqBody.typeName;
-    amount = Number(reqBody.amount);
+    amount = +reqBody.amount;
     if (!typeName || !type || !amount) {
         res.status(401).json({
             message: "Incomplete data provided, please complete the data and try again",
@@ -30,6 +30,10 @@ const addPayment = async (req, res, next) => {
             return;
         }
         const transaction = await new transaction_1.default({
+            owner: ownerID,
+            transactionID: Math.random().toString(32).slice(2),
+            transferDate: `${new Date().getFullYear()} - ${new Date().getMonth()} - ${new Date().getDate()}`,
+            transferTime: `${new Date().getHours()} : ${new Date().getMinutes()}`,
             type,
             typeName,
             amount,
@@ -44,24 +48,46 @@ const addPayment = async (req, res, next) => {
         userData.transactionNum += 1;
         userData.balance -= amount;
         userData.pending += amount;
-        userData.save();
-        const newTransaction = transaction.transactions;
+        await userData.save();
+        // Check if the transaction performed is "Utility payment" and give user 5% bonus
+        if (type === "Utility payment") {
+            const bonusAmount = amount * 0.05;
+            const bonusTransaction = await new transaction_1.default({
+                owner: ownerID,
+                transactionID: Math.random().toString(32).slice(2),
+                type: "Payment bonus",
+                typeName,
+                amount: bonusAmount,
+                status: "Success",
+                deliveredOn: `${new Date().getFullYear()} - ${new Date().getMonth()} - ${new Date().getDate()}`,
+                transferDate: `${new Date().getFullYear()} - ${new Date().getMonth()} - ${new Date().getDate()}`,
+                transferTime: `${new Date().getHours()} : ${new Date().getMinutes()}`,
+            }).save();
+            if (bonusTransaction) {
+                userData.transactions.push(bonusTransaction.id);
+                userData.transactionNum += 1;
+                userData.balance += bonusAmount;
+                userData.earnings += bonusAmount;
+                await userData.save();
+            }
+        }
         res.status(201).json({
             message: "Payment successfully sent",
             code: 1,
             transaction: {
-                typeName: newTransaction?.typeName,
-                type: newTransaction?.type,
-                transferDate: newTransaction?.transferDate,
-                transferTime: newTransaction?.transferTime,
-                transactionID: newTransaction?.transactionID,
-                amount: newTransaction?.amount,
-                status: newTransaction?.status,
-                deliveredOn: newTransaction?.deliveredOn,
+                typeName: transaction?.typeName,
+                type: transaction?.type,
+                transferDate: transaction?.transferDate,
+                transferTime: transaction?.transferTime,
+                transactionID: transaction?.transactionID,
+                amount: transaction?.amount,
+                status: transaction?.status,
+                deliveredOn: transaction?.deliveredOn,
             },
         });
     }
     catch (_) {
+        console.log(_.message);
         next(new Error("Error sending payment, please try again."));
     }
 };

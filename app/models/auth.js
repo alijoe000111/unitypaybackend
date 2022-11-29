@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.sendVerificationMail = exports.changeEmail = exports.forgetPassword = exports.signin = exports.signUp = void 0;
 const auth_1 = __importDefault(require("../db-model/auth"));
 const user_1 = __importDefault(require("../db-model/user"));
-const transaction_1 = __importDefault(require("../db-model/transaction"));
 const token_1 = __importDefault(require("../db-model/token"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
@@ -38,7 +37,6 @@ const signUp = async (req, res, next) => {
             return;
         }
         new user_1.default({ owner: result._id }).save();
-        new transaction_1.default({ owner: result._id }).save();
         res.status(201).json({
             emailAddress,
             fullname,
@@ -144,7 +142,7 @@ exports.forgetPassword = forgetPassword;
 const changeEmail = () => { };
 exports.changeEmail = changeEmail;
 const sendVerificationMail = (_, res, _1) => {
-    // TODO: verif mail
+    // TODO: verify mail
     res.status(200).json({ message: "Working on it" });
 };
 exports.sendVerificationMail = sendVerificationMail;

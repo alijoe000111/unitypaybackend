@@ -1,7 +1,6 @@
 import { RequestHandler, Request, Response, NextFunction } from "express";
 import AuthModel from "../db-model/auth";
 import UserModel from "../db-model/user";
-import TransactionModel from "../db-model/transaction";
 import TokenModel from "../db-model/token";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -46,7 +45,6 @@ export const signUp: RequestHandler = async (
     }
 
     new UserModel({ owner: result._id }).save();
-    new TransactionModel({ owner: result._id }).save();
 
     res.status(201).json({
       emailAddress,
@@ -188,6 +186,6 @@ export const sendVerificationMail: RequestHandler = (
   res: Response,
   _1: NextFunction
 ) => {
-  // TODO: verif mail
+  // TODO: verify mail
   res.status(200).json({ message: "Working on it" });
 };
