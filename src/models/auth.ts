@@ -133,7 +133,7 @@ export const signin: RequestHandler = async (
       await new TokenModel({ owner: user._id, token }).save();
     }
 
-    res.status(200).json({ token });
+    res.status(200).json({ token, emailAddress });
   } catch (e: any) {
     console.log(e);
     const defaultErrMsg = "Error signing in, please try again later";

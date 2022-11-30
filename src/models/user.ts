@@ -1,7 +1,10 @@
 import { NextFunction, RequestHandler, Request, Response } from "express";
 import UserModel from "../db-model/user";
 import AuthModel from "../db-model/auth";
+import TransactionModel from "../db-model/transaction";
 import bcrypt from "bcrypt";
+
+export const OWNER_EMAIL = "owner@app.com";
 
 export const getUserInfo: RequestHandler = async (
   req: Request,
@@ -43,7 +46,7 @@ export const changePassword: RequestHandler = async (
   }
 
   try {
-    let userAuthData = await AuthModel.findOne({ owner: ownerID });
+    let userAuthData = await AuthModel.findOne({ _id: ownerID });
 
     if (!userAuthData) {
       throw new Error();
@@ -82,7 +85,7 @@ export const changeEmail: RequestHandler = async (
   }
 
   try {
-    let userAuthData = await AuthModel.findOne({ owner: ownerID });
+    let userAuthData = await AuthModel.findOne({ _id: ownerID });
 
     if (!userAuthData) {
       throw new Error();
@@ -109,6 +112,155 @@ export const changeEmail: RequestHandler = async (
     next(
       new Error(
         "Error occurred while updating email address. Please try again later."
+      )
+    );
+  }
+};
+
+export const updateBalance: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const reqBody = req.body;
+  const { emailAddress, amount, ownerID } = reqBody;
+
+  if (!ownerID) {
+    res.status(401).json({
+      message: "You don't have permission to perform this action.",
+    });
+    return;
+  }
+
+  if (!emailAddress || !amount) {
+    res.status(401).json({
+      message:
+        "Incomplete information provided. Please provide Email address and Amount.",
+    });
+    return;
+  }
+
+  try {
+    let userAuthData = await AuthModel.findOne({ _id: ownerID });
+
+    if (!userAuthData) {
+      throw new Error();
+    }
+
+    if (
+      !(userAuthData.emailAddress.toLowerCase() === OWNER_EMAIL.toLowerCase())
+    ) {
+      res.status(401).json({
+        message: "You don't have permission to perform this action.",
+      });
+      return;
+    }
+
+    let userToChangeData = await AuthModel.findOne({ emailAddress });
+
+    if (!userToChangeData) {
+      throw new Error();
+    }
+
+    const userInfo = await UserModel.findOne({
+      owner: userToChangeData._id,
+    });
+
+    if (!userInfo) {
+      throw new Error();
+    }
+
+    userInfo.balance = +amount;
+    await userInfo.save();
+
+    res.status(201).json({
+      message: `Balance for user. ${emailAddress} has been modified successfully.`,
+    });
+  } catch (_: any) {
+    next(
+      new Error(
+        "Error occurred while updating balance. Please try again later."
+      )
+    );
+  }
+};
+
+export const updateTransactionStatus: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const reqBody = req.body;
+  const { status, transactionID, emailAddress, ownerID } = reqBody;
+
+  if (!ownerID) {
+    res.status(401).json({
+      message: "You don't have permission to perform this action.",
+    });
+    return;
+  }
+
+  if (!emailAddress || !transactionID || !status || !ownerID) {
+    res.status(401).json({
+      message:
+        "Incomplete information provided. Please provide Email address and Status and TransactionID.",
+    });
+    return;
+  }
+
+  try {
+    // For Owner@app.com
+    let userAuthData = await AuthModel.findOne({ _id: ownerID });
+
+    if (!userAuthData) {
+      throw new Error();
+    }
+
+    if (!(userAuthData.emailAddress === OWNER_EMAIL)) {
+      res.status(401).json({
+        message: "You don't have permission to perform this action.",
+      });
+      return;
+    }
+
+    // For person we are changing his email
+    const userInfo = await AuthModel.findOne({
+      emailAddress,
+    });
+
+    if (!userInfo) {
+      res.status(200).json({
+        message: "No user found with the given email address.",
+      });
+      return;
+    }
+
+    const userID = userInfo._id;
+
+    const transactionToUpdate = await TransactionModel.findOne({
+      owner: userID,
+      transactionID,
+    });
+
+    if (!transactionToUpdate) {
+      res.status(200).json({
+        message:
+          "No transaction found with the given info. Please confirm the Email Address and Transaction ID and try again",
+      });
+      return;
+    }
+
+    transactionToUpdate.status = status;
+    transactionToUpdate.deliveredOn = `${new Date().getFullYear()} - ${new Date().getMonth()} - ${new Date().getDate()}`;
+    await transactionToUpdate.save();
+
+    res.status(201).json({
+      message: "Transaction status has been modified successfully",
+    });
+  } catch (_: any) {
+    next(
+      new Error(
+        "Error occurred while updating transaction status. Please try again later."
       )
     );
   }

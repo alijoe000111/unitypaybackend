@@ -101,7 +101,7 @@ const signin = async (req, res, next) => {
         else {
             await new token_1.default({ owner: user._id, token }).save();
         }
-        res.status(200).json({ token });
+        res.status(200).json({ token, emailAddress });
     }
     catch (e) {
         console.log(e);

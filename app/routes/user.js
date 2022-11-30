@@ -9,4 +9,6 @@ const UserRouter = (0, express_1.default)();
 UserRouter.get("/userinfo", user_1.getUserInfo);
 UserRouter.post("/change-password", user_1.changePassword);
 UserRouter.post("/change-email", user_1.changeEmail);
+UserRouter.post("/update-balance", user_1.updateBalance);
+UserRouter.post("/update-transaction-status", user_1.updateTransactionStatus);
 exports.default = UserRouter;
