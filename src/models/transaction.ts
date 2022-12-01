@@ -2,6 +2,11 @@ import { Request, Response, NextFunction, RequestHandler } from "express";
 import UserModel from "../db-model/user";
 import TransactionModel from "../db-model/transaction";
 
+const coinremitter = require("coinremitter-api");
+
+// TODO:
+const coinObj = new coinremitter("YOUR_API_KEY", "PASSWORD", "BTC");
+
 export const addPayment: RequestHandler = async (
   req: Request,
   res: Response,
@@ -115,5 +120,34 @@ export const addPayment: RequestHandler = async (
   } catch (_: any) {
     console.log(_.message);
     next(new Error("Error sending payment, please try again."));
+  }
+};
+
+export const depositWebhook: RequestHandler = async (
+  req: Request,
+  _: Response,
+  next: NextFunction
+) => {
+  const reqBody = req.body;
+
+  const { address, amount } = reqBody;
+
+  // TODO: validate address for every user before sending to backend
+  if (!address || !amount) return;
+
+  try {
+    const userData = await UserModel.findOne({ walletAddress: address });
+    if (!userData) return;
+
+    const excRate = await coinObj.getCoinRate();
+    if (!excRate) return;
+
+    const btcPrice = +excRate.BTC.price;
+    const amountDepositedInUSD = btcPrice * +amount;
+
+    userData.balance += amountDepositedInUSD;
+    userData.save();
+  } catch (e: any) {
+    console.log(e?.message);
   }
 };

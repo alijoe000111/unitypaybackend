@@ -22,6 +22,7 @@ app.use((req, res, next) => {
   const allowedOrigin = [
     "http://localhost:3000",
     "https://orbitpay.netlify.app",
+    "https://coinremitter.com",
   ];
   const origin = req.headers.origin!!;
 

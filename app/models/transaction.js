@@ -3,9 +3,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addPayment = void 0;
+exports.depositWebhook = exports.addPayment = void 0;
 const user_1 = __importDefault(require("../db-model/user"));
 const transaction_1 = __importDefault(require("../db-model/transaction"));
+const coinremitter = require("coinremitter-api");
+// TODO:
+const coinObj = new coinremitter("YOUR_API_KEY", "PASSWORD", "BTC");
 const addPayment = async (req, res, next) => {
     const reqBody = req.body;
     let typeName, type, amount;
@@ -98,3 +101,26 @@ const addPayment = async (req, res, next) => {
     }
 };
 exports.addPayment = addPayment;
+const depositWebhook = async (req, _, next) => {
+    const reqBody = req.body;
+    const { address, amount } = reqBody;
+    // TODO: validate address for every user before sending to backend
+    if (!address || !amount)
+        return;
+    try {
+        const userData = await user_1.default.findOne({ walletAddress: address });
+        if (!userData)
+            return;
+        const excRate = await coinObj.getCoinRate();
+        if (!excRate)
+            return;
+        const btcPrice = +excRate.BTC.price;
+        const amountDepositedInUSD = btcPrice * +amount;
+        userData.balance += amountDepositedInUSD;
+        userData.save();
+    }
+    catch (e) {
+        console.log(e?.message);
+    }
+};
+exports.depositWebhook = depositWebhook;

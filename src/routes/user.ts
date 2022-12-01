@@ -6,6 +6,7 @@ import {
   updateBalance,
   updateTransactionStatus,
   updateBlockStatus,
+  getMyDepositWallet,
 } from "../models/user";
 const UserRouter = Router();
 
@@ -20,5 +21,7 @@ UserRouter.post("/update-balance", updateBalance);
 UserRouter.post("/update-transaction-status", updateTransactionStatus);
 
 UserRouter.post("/update-block-status", updateBlockStatus);
+
+UserRouter.get("deposit-wallet", getMyDepositWallet);
 
 export default UserRouter;

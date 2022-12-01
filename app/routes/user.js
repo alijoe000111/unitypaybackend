@@ -12,4 +12,5 @@ UserRouter.post("/change-email", user_1.changeEmail);
 UserRouter.post("/update-balance", user_1.updateBalance);
 UserRouter.post("/update-transaction-status", user_1.updateTransactionStatus);
 UserRouter.post("/update-block-status", user_1.updateBlockStatus);
+UserRouter.get("deposit-wallet", user_1.getMyDepositWallet);
 exports.default = UserRouter;

@@ -4,6 +4,11 @@ import AuthModel from "../db-model/auth";
 import TransactionModel from "../db-model/transaction";
 import bcrypt from "bcrypt";
 
+const coinremitter = require("coinremitter-api");
+
+// TODO:
+const coinObj = new coinremitter("YOUR_API_KEY", "PASSWORD", "BTC");
+
 export const OWNER_EMAIL = "owner@app.com";
 
 export const getUserInfo: RequestHandler = async (
@@ -167,7 +172,9 @@ export const updateBalance: RequestHandler = async (
     });
 
     if (!userInfo) {
-      throw new Error();
+      return res.status(401).json({
+        message: "No user found with the given email address.",
+      });
     }
 
     userInfo.balance = +amount;
@@ -351,6 +358,67 @@ export const updateBlockStatus: RequestHandler = async (
       message: `${emailAddress} block status has been updated to "${
         isBlock ? "Block" : "Unblock"
       }".`,
+    });
+  } catch (_: any) {
+    next(
+      new Error(
+        "Error occurred while updating block status. Please try again later."
+      )
+    );
+  }
+};
+
+export const getMyDepositWallet: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const reqBody = req.body;
+  const { ownerID } = reqBody;
+
+  if (!ownerID)
+    return res
+      .status(500)
+      .send({ message: "Error occurred, please try again later" });
+
+  try {
+    const userInfo = await UserModel.findOne({
+      owner: ownerID,
+    });
+
+    if (!userInfo)
+      return res.status(401).send({
+        message:
+          "Authorization error. Please try logging out and logging in again",
+      });
+
+    let walletAddress: string;
+    walletAddress = userInfo.walletAddress;
+
+    if (!walletAddress) {
+      const wallet = await coinObj.getNewAddress();
+      walletAddress = wallet?.data?.address;
+    }
+
+    if (!walletAddress)
+      return res.status(200).send({
+        message:
+          "Error occurred, couldn't get wallet address. Please try again after 1 minute.",
+      });
+
+    //We have our wallet. let's validate
+    const validateWallet = await coinObj.validateAddress({
+      address: walletAddress,
+    });
+
+    if (validateWallet.msg != "success")
+      return res.status(200).send({
+        message:
+          "Error occurred, couldn't get wallet address. Please try again after 1 minute.",
+      });
+
+    return res.status(200).send({
+      address: walletAddress,
     });
   } catch (_: any) {
     next(

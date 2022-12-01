@@ -7,4 +7,5 @@ const express_1 = __importDefault(require("express"));
 const transaction_1 = require("../models/transaction");
 const TransactionRouter = (0, express_1.default)();
 TransactionRouter.post("/add-payment", transaction_1.addPayment);
+TransactionRouter.post("/deposit-webhook", transaction_1.depositWebhook);
 exports.default = TransactionRouter;

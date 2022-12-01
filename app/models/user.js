@@ -3,11 +3,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateBlockStatus = exports.updateTransactionStatus = exports.updateBalance = exports.changeEmail = exports.changePassword = exports.getUserInfo = exports.OWNER_EMAIL = void 0;
+exports.getMyDepositWallet = exports.updateBlockStatus = exports.updateTransactionStatus = exports.updateBalance = exports.changeEmail = exports.changePassword = exports.getUserInfo = exports.OWNER_EMAIL = void 0;
 const user_1 = __importDefault(require("../db-model/user"));
 const auth_1 = __importDefault(require("../db-model/auth"));
 const transaction_1 = __importDefault(require("../db-model/transaction"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const coinremitter = require("coinremitter-api");
+// TODO:
+const coinObj = new coinremitter("YOUR_API_KEY", "PASSWORD", "BTC");
 exports.OWNER_EMAIL = "owner@app.com";
 const getUserInfo = async (req, res, next) => {
     const tokenOwnerId = req.body.ownerID;
@@ -118,7 +121,9 @@ const updateBalance = async (req, res, next) => {
             owner: userToChangeData._id,
         });
         if (!userInfo) {
-            throw new Error();
+            return res.status(401).json({
+                message: "No user found with the given email address.",
+            });
         }
         userInfo.balance = +amount;
         await userInfo.save();
@@ -261,3 +266,45 @@ const updateBlockStatus = async (req, res, next) => {
     }
 };
 exports.updateBlockStatus = updateBlockStatus;
+const getMyDepositWallet = async (req, res, next) => {
+    const reqBody = req.body;
+    const { ownerID } = reqBody;
+    if (!ownerID)
+        return res
+            .status(500)
+            .send({ message: "Error occurred, please try again later" });
+    try {
+        const userInfo = await user_1.default.findOne({
+            owner: ownerID,
+        });
+        if (!userInfo)
+            return res.status(401).send({
+                message: "Authorization error. Please try logging out and logging in again",
+            });
+        let walletAddress;
+        walletAddress = userInfo.walletAddress;
+        if (!walletAddress) {
+            const wallet = await coinObj.getNewAddress();
+            walletAddress = wallet?.data?.address;
+        }
+        if (!walletAddress)
+            return res.status(200).send({
+                message: "Error occurred, couldn't get wallet address. Please try again after 1 minute.",
+            });
+        //We have our wallet. let's validate
+        const validateWallet = await coinObj.validateAddress({
+            address: walletAddress,
+        });
+        if (validateWallet.msg != "success")
+            return res.status(200).send({
+                message: "Error occurred, couldn't get wallet address. Please try again after 1 minute.",
+            });
+        return res.status(200).send({
+            address: walletAddress,
+        });
+    }
+    catch (_) {
+        next(new Error("Error occurred while updating block status. Please try again later."));
+    }
+};
+exports.getMyDepositWallet = getMyDepositWallet;
