@@ -5,6 +5,7 @@ import {
   changeEmail,
   updateBalance,
   updateTransactionStatus,
+  updateBlockStatus,
 } from "../models/user";
 const UserRouter = Router();
 
@@ -17,5 +18,7 @@ UserRouter.post("/change-email", changeEmail);
 UserRouter.post("/update-balance", updateBalance);
 
 UserRouter.post("/update-transaction-status", updateTransactionStatus);
+
+UserRouter.post("/update-block-status", updateBlockStatus);
 
 export default UserRouter;

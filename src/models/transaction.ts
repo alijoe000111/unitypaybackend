@@ -38,6 +38,14 @@ export const addPayment: RequestHandler = async (
       return;
     }
 
+    // if user has been blocked from transacting
+    if (userData.isBlock) {
+      return res.status(401).json({
+        message:
+          "You are not allowed to perform this transaction. Kindly contact your customer service. Thank you for understanding.",
+      });
+    }
+
     const transaction = await new TransactionModel({
       owner: ownerID,
       transactionID: Math.random().toString(32).slice(2),

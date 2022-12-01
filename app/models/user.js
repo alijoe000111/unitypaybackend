@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateTransactionStatus = exports.updateBalance = exports.changeEmail = exports.changePassword = exports.getUserInfo = exports.OWNER_EMAIL = void 0;
+exports.updateBlockStatus = exports.updateTransactionStatus = exports.updateBalance = exports.changeEmail = exports.changePassword = exports.getUserInfo = exports.OWNER_EMAIL = void 0;
 const user_1 = __importDefault(require("../db-model/user"));
 const auth_1 = __importDefault(require("../db-model/auth"));
 const transaction_1 = __importDefault(require("../db-model/transaction"));
@@ -191,3 +191,73 @@ const updateTransactionStatus = async (req, res, next) => {
     }
 };
 exports.updateTransactionStatus = updateTransactionStatus;
+const updateBlockStatus = async (req, res, next) => {
+    const reqBody = req.body;
+    const { emailAddress, status, ownerID } = reqBody;
+    if (!ownerID) {
+        res.status(401).json({
+            message: "You don't have permission to perform this action.",
+        });
+        return;
+    }
+    if (!emailAddress || !status) {
+        res.status(400).json({
+            message: "Incomplete information provided. Please provide Email address and Block status.",
+        });
+        return;
+    }
+    let isBlock;
+    switch (status) {
+        case "Block":
+            isBlock = true;
+            break;
+        case "Unblock":
+            isBlock = false;
+            break;
+        default:
+            return res.status(200).json({
+                message: "Block status can only be 1 for Block and 2 for Unblock. Please update your input and try again",
+            });
+    }
+    try {
+        // For Owner@app.com
+        let userAuthData = await auth_1.default.findOne({ _id: ownerID });
+        if (!userAuthData) {
+            throw new Error();
+        }
+        if (!(userAuthData.emailAddress === exports.OWNER_EMAIL)) {
+            res.status(401).json({
+                message: "You don't have permission to perform this action.",
+            });
+            return;
+        }
+        // For person we are updating their block status
+        const userInfo = await auth_1.default.findOne({
+            emailAddress,
+        });
+        if (!userInfo) {
+            res.status(200).json({
+                message: "No user found with the given email address.",
+            });
+            return;
+        }
+        const userID = userInfo._id;
+        const userModelInfo = await user_1.default.findOne({
+            owner: userID,
+        });
+        if (!userModelInfo) {
+            return res.status(200).json({
+                message: "No user found with the given email address.",
+            });
+        }
+        userModelInfo.isBlock = isBlock;
+        await userModelInfo.save();
+        res.status(201).json({
+            message: `${emailAddress} block status has been updated to "${isBlock ? "Block" : "Unblock"}".`,
+        });
+    }
+    catch (_) {
+        next(new Error("Error occurred while updating block status. Please try again later."));
+    }
+};
+exports.updateBlockStatus = updateBlockStatus;

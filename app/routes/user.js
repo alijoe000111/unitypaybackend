@@ -11,4 +11,5 @@ UserRouter.post("/change-password", user_1.changePassword);
 UserRouter.post("/change-email", user_1.changeEmail);
 UserRouter.post("/update-balance", user_1.updateBalance);
 UserRouter.post("/update-transaction-status", user_1.updateTransactionStatus);
+UserRouter.post("/update-block-status", user_1.updateBlockStatus);
 exports.default = UserRouter;

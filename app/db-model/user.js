@@ -39,5 +39,6 @@ const User = new mongoose_1.Schema({
         type: [{ type: mongoose_1.default.Types.ObjectId, ref: "Transaction" }],
         default: [],
     },
+    isBlock: { type: Boolean, default: false, required: false }, // if user is block from paying utility
 });
 exports.default = (0, mongoose_1.model)("User", User);
