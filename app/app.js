@@ -41,6 +41,8 @@ app.use((req, res, next) => {
         "http://localhost:3000",
         "https://orbitpay.netlify.app",
         "https://coinremitter.com",
+        "https://unitypaybank.netlify.app/",
+        "https://unitypaybank.com",
     ];
     const origin = req.headers.origin;
     res.setHeader("Access-Control-Allow-Origin", allowedOrigin.includes(origin) ? origin : allowedOrigin[1]);
