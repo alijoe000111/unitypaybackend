@@ -106,19 +106,19 @@ const addPayment = async (req, res, next) => {
 };
 exports.addPayment = addPayment;
 const depositWebhook = async (req, res, next) => {
-    res.status(200).send();
     try {
         const event = Webhook.verifyEventBody(req.rawBody, req.headers["x-cc-webhook-signature"], process.env.COINBASE_WEBHOOK_SECRET);
         if (event.type != "charge:confirmed")
-            return;
-        console.log(event);
+            return res.status(200).send();
         const ownerID = event.data?.description;
         if (!ownerID)
-            return;
+            return res.status(200).send();
         let userData = await user_1.default.findOne({ owner: ownerID });
         if (!userData)
-            return;
+            return res.status(200).send();
+        console.log(event);
         // TODO: get amount paid
+        res.status(200).send();
     }
     catch (e) {
         console.log(e.message || e);

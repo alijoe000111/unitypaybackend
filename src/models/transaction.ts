@@ -134,8 +134,6 @@ export const depositWebhook: RequestHandler = async (
   res: Response,
   next: NextFunction
 ) => {
-  res.status(200).send();
-
   try {
     const event = Webhook.verifyEventBody(
       req.rawBody,
@@ -143,17 +141,18 @@ export const depositWebhook: RequestHandler = async (
       process.env.COINBASE_WEBHOOK_SECRET
     );
 
-    if (event.type != "charge:confirmed") return;
+    if (event.type != "charge:confirmed") return res.status(200).send();
+
+    const ownerID = event.data?.description;
+    if (!ownerID) return res.status(200).send();
+
+    let userData = await UserModel.findOne({ owner: ownerID });
+    if (!userData) return res.status(200).send();
 
     console.log(event);
 
-    const ownerID = event.data?.description;
-    if (!ownerID) return;
-
-    let userData = await UserModel.findOne({ owner: ownerID });
-    if (!userData) return;
-
     // TODO: get amount paid
+    res.status(200).send();
   } catch (e: any) {
     console.log(e.message || e);
   }
