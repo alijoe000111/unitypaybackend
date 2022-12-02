@@ -28,14 +28,6 @@ app.use((req, res, next) => {
   ];
   const origin = req.headers.origin!!;
 
-  if (!origin) {
-    if (req.method === "OPTIONS") {
-      res.status(200).send();
-      return;
-    }
-    next();
-  }
-
   res.setHeader(
     "Access-Control-Allow-Origin",
     allowedOrigin.includes(origin) ? origin : allowedOrigin[1]
@@ -63,6 +55,8 @@ const ValidateToken: RequestHandler = async (
   res: Response,
   next: NextFunction
 ) => {
+  if (req.url === "/deposit-webhook") next();
+
   let token = req.headers.authorization;
 
   if (!token || !token.startsWith("Bearer ") || token.length < 10) {

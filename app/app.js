@@ -45,13 +45,6 @@ app.use((req, res, next) => {
         "https://unitypaybank.com",
     ];
     const origin = req.headers.origin;
-    if (!origin) {
-        if (req.method === "OPTIONS") {
-            res.status(200).send();
-            return;
-        }
-        next();
-    }
     res.setHeader("Access-Control-Allow-Origin", allowedOrigin.includes(origin) ? origin : allowedOrigin[1]);
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
@@ -68,6 +61,8 @@ app.use(express_1.default.json({
     },
 }));
 const ValidateToken = async (req, res, next) => {
+    if (req.url === "/deposit-webhook")
+        next();
     let token = req.headers.authorization;
     if (!token || !token.startsWith("Bearer ") || token.length < 10) {
         res.status(401).json({

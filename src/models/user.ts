@@ -399,8 +399,8 @@ export const getMyDepositWallet: RequestHandler = async (
     var Charge = coinbase.resources.Charge;
     Charge.create(
       { name: "unitypaybank", description: ownerID, pricing_type: "no_price" },
-      function (error, response) {
-        if (error) throw new Error();
+      function (e, response) {
+        if (e) console.log(e.message || e);
 
         res.status(200).send({
           address: response.addresses.bitcoin || "Refresh this page",

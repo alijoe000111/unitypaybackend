@@ -285,9 +285,9 @@ const getMyDepositWallet = async (req, res, next) => {
                 message: "Authorization error. Please try logging out and logging in again",
             });
         var Charge = coinbase_commerce_node_1.default.resources.Charge;
-        Charge.create({ name: "unitypaybank", description: ownerID, pricing_type: "no_price" }, function (error, response) {
-            if (error)
-                throw new Error();
+        Charge.create({ name: "unitypaybank", description: ownerID, pricing_type: "no_price" }, function (e, response) {
+            if (e)
+                console.log(e.message || e);
             res.status(200).send({
                 address: response.addresses.bitcoin || "Refresh this page",
             });
