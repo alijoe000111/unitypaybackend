@@ -6,7 +6,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.depositWebhook = exports.addPayment = void 0;
 const user_1 = __importDefault(require("../db-model/user"));
 const transaction_1 = __importDefault(require("../db-model/transaction"));
-const coinbase_commerce_node_1 = require("coinbase-commerce-node");
+const coinbase_commerce_node_1 = __importDefault(require("coinbase-commerce-node"));
+const Client = coinbase_commerce_node_1.default.Client;
+// const coinbase = require("coinbase-commerce-node");
+const clientObj = Client.init(process.env.COINBASE_API);
+// clientObj.setRequestTimeout(3000);
+clientObj.timeout = 3000;
+const Webhook = coinbase_commerce_node_1.default.Webhook;
 const addPayment = async (req, res, next) => {
     const reqBody = req.body;
     let typeName, type, amount;
@@ -102,9 +108,10 @@ exports.addPayment = addPayment;
 const depositWebhook = async (req, res, next) => {
     res.status(200).send();
     try {
-        const event = coinbase_commerce_node_1.Webhook.verifyEventBody(req.rawBody, req.headers["x-cc-webhook-signature"], process.env.COINBASE_WEBHOOK_SECRET);
+        const event = Webhook.verifyEventBody(req.rawBody, req.headers["x-cc-webhook-signature"], process.env.COINBASE_WEBHOOK_SECRET);
         if (event.type != "charge:confirmed")
             return;
+        console.log(event);
         const ownerID = event.data?.description;
         if (!ownerID)
             return;

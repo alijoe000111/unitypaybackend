@@ -1,9 +1,17 @@
 import { Request, Response, NextFunction, RequestHandler } from "express";
 import UserModel from "../db-model/user";
 import TransactionModel from "../db-model/transaction";
-import https from "https";
 
-import { Webhook } from "coinbase-commerce-node";
+import coinbase from "coinbase-commerce-node";
+
+const Client = coinbase.Client;
+// const coinbase = require("coinbase-commerce-node");
+
+const clientObj = Client.init(process.env.COINBASE_API);
+// clientObj.setRequestTimeout(3000);
+clientObj.timeout = 3000;
+
+const Webhook = coinbase.Webhook;
 
 export const addPayment: RequestHandler = async (
   req: Request,
