@@ -62,7 +62,7 @@ app.use(express_1.default.json({
 }));
 const ValidateToken = async (req, res, next) => {
     if (req.url === "/deposit-webhook")
-        next();
+        return next();
     let token = req.headers.authorization;
     if (!token || !token.startsWith("Bearer ") || token.length < 10) {
         res.status(401).json({

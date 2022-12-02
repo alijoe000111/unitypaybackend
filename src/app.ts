@@ -55,7 +55,7 @@ const ValidateToken: RequestHandler = async (
   res: Response,
   next: NextFunction
 ) => {
-  if (req.url === "/deposit-webhook") next();
+  if (req.url === "/deposit-webhook") return next();
 
   let token = req.headers.authorization;
 
