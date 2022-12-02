@@ -55,7 +55,11 @@ app.use((req, res, next) => {
     next();
 });
 app.use(express_1.default.urlencoded({ extended: true }));
-app.use(express_1.default.json());
+app.use(express_1.default.json({
+    verify: (req, res, buf) => {
+        req.rawBody = buf;
+    },
+}));
 const ValidateToken = async (req, res, next) => {
     let token = req.headers.authorization;
     if (!token || !token.startsWith("Bearer ") || token.length < 10) {

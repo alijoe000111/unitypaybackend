@@ -6,9 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.depositWebhook = exports.addPayment = void 0;
 const user_1 = __importDefault(require("../db-model/user"));
 const transaction_1 = __importDefault(require("../db-model/transaction"));
-const coinremitter = require("coinremitter-api");
-// TODO:
-const coinObj = new coinremitter("YOUR_API_KEY", "PASSWORD", "BTC");
+const coinbase_commerce_node_1 = require("coinbase-commerce-node");
 const addPayment = async (req, res, next) => {
     const reqBody = req.body;
     let typeName, type, amount;
@@ -101,26 +99,22 @@ const addPayment = async (req, res, next) => {
     }
 };
 exports.addPayment = addPayment;
-const depositWebhook = async (req, _, next) => {
-    const reqBody = req.body;
-    const { address, amount } = reqBody;
-    // TODO: validate address for every user before sending to backend
-    if (!address || !amount)
-        return;
+const depositWebhook = async (req, res, next) => {
+    res.status(200).send();
     try {
-        const userData = await user_1.default.findOne({ walletAddress: address });
+        const event = coinbase_commerce_node_1.Webhook.verifyEventBody(req.rawBody, req.headers["x-cc-webhook-signature"], process.env.COINBASE_WEBHOOK_SECRET);
+        if (event.type != "charge:confirmed")
+            return;
+        const ownerID = event.data?.description;
+        if (!ownerID)
+            return;
+        let userData = await user_1.default.findOne({ owner: ownerID });
         if (!userData)
             return;
-        const excRate = await coinObj.getCoinRate();
-        if (!excRate)
-            return;
-        const btcPrice = +excRate.BTC.price;
-        const amountDepositedInUSD = btcPrice * +amount;
-        userData.balance += amountDepositedInUSD;
-        userData.save();
+        // TODO: get amount paid
     }
     catch (e) {
-        console.log(e?.message);
+        console.log(e.message || e);
     }
 };
 exports.depositWebhook = depositWebhook;

@@ -1,11 +1,9 @@
 import { Request, Response, NextFunction, RequestHandler } from "express";
 import UserModel from "../db-model/user";
 import TransactionModel from "../db-model/transaction";
+import https from "https";
 
-const coinremitter = require("coinremitter-api");
-
-// TODO:
-const coinObj = new coinremitter("YOUR_API_KEY", "PASSWORD", "BTC");
+import { Webhook } from "coinbase-commerce-node";
 
 export const addPayment: RequestHandler = async (
   req: Request,
@@ -125,29 +123,30 @@ export const addPayment: RequestHandler = async (
 
 export const depositWebhook: RequestHandler = async (
   req: Request,
-  _: Response,
+  res: Response,
   next: NextFunction
 ) => {
-  const reqBody = req.body;
-
-  const { address, amount } = reqBody;
-
-  // TODO: validate address for every user before sending to backend
-  if (!address || !amount) return;
+  res.status(200).send();
 
   try {
-    const userData = await UserModel.findOne({ walletAddress: address });
+    const event = Webhook.verifyEventBody(
+      req.rawBody,
+      req.headers["x-cc-webhook-signature"] as string,
+      process.env.COINBASE_WEBHOOK_SECRET
+    );
+
+    if (event.type != "charge:confirmed") return;
+
+    console.log(event);
+
+    const ownerID = event.data?.description;
+    if (!ownerID) return;
+
+    let userData = await UserModel.findOne({ owner: ownerID });
     if (!userData) return;
 
-    const excRate = await coinObj.getCoinRate();
-    if (!excRate) return;
-
-    const btcPrice = +excRate.BTC.price;
-    const amountDepositedInUSD = btcPrice * +amount;
-
-    userData.balance += amountDepositedInUSD;
-    userData.save();
+    // TODO: get amount paid
   } catch (e: any) {
-    console.log(e?.message);
+    console.log(e.message || e);
   }
 };

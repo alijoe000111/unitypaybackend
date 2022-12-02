@@ -4,10 +4,14 @@ import AuthModel from "../db-model/auth";
 import TransactionModel from "../db-model/transaction";
 import bcrypt from "bcrypt";
 
-const coinremitter = require("coinremitter-api");
+import coinbase from "coinbase-commerce-node";
 
-// TODO:
-const coinObj = new coinremitter("YOUR_API_KEY", "PASSWORD", "BTC");
+const Client = coinbase.Client;
+// const coinbase = require("coinbase-commerce-node");
+
+const clientObj = Client.init(process.env.COINBASE_API);
+// clientObj.setRequestTimeout(3000);
+clientObj.timeout = 3000;
 
 export const OWNER_EMAIL = "owner@app.com";
 
@@ -392,34 +396,24 @@ export const getMyDepositWallet: RequestHandler = async (
           "Authorization error. Please try logging out and logging in again",
       });
 
-    let walletAddress: string;
-    walletAddress = userInfo.walletAddress;
+    var Charge = coinbase.resources.Charge;
+    Charge.create(
+      { name: "unitypaybank", description: ownerID, pricing_type: "no_price" },
+      function (error, response) {
+        if (error) throw new Error();
 
-    if (!walletAddress) {
-      const wallet = await coinObj.getNewAddress();
-      walletAddress = wallet?.data?.address;
-    }
+        res.status(200).send({
+          address: response.addresses.bitcoin || "Refresh this page",
+        });
 
-    if (!walletAddress)
-      return res.status(200).send({
-        message:
-          "Error occurred, couldn't get wallet address. Please try again after 1 minute.",
-      });
+        const excRateBtcUsd = +(response as any)?.exchange_rates["BTC-USD"];
 
-    //We have our wallet. let's validate
-    const validateWallet = await coinObj.validateAddress({
-      address: walletAddress,
-    });
-
-    if (validateWallet.msg != "success")
-      return res.status(200).send({
-        message:
-          "Error occurred, couldn't get wallet address. Please try again after 1 minute.",
-      });
-
-    return res.status(200).send({
-      address: walletAddress,
-    });
+        if (excRateBtcUsd && userInfo?.lastBTCUSDExcRate != excRateBtcUsd) {
+          userInfo.lastBTCUSDExcRate = excRateBtcUsd;
+          userInfo.save();
+        }
+      }
+    );
   } catch (_: any) {
     next(
       new Error(

@@ -15,7 +15,7 @@ const User = new Schema({
     type: [{ type: mongoose.Types.ObjectId, ref: "Transaction" }],
     default: [],
   },
-  walletAddress: { type: String, default: "", required: false },
+  lastBTCUSDExcRate: { type: Number, default: 16966.18, required: false },
   isBlock: { type: Boolean, default: false, required: false }, // if user is block from paying utility
 });
 

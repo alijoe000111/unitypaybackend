@@ -42,7 +42,13 @@ app.use((req, res, next) => {
 });
 
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(
+  express.json({
+    verify: (req, res, buf) => {
+      req.rawBody = buf;
+    },
+  })
+);
 
 const ValidateToken: RequestHandler = async (
   req: Request,
