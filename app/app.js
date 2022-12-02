@@ -45,7 +45,13 @@ app.use((req, res, next) => {
         "https://unitypaybank.com",
     ];
     const origin = req.headers.origin;
-    console.log(origin);
+    if (!origin) {
+        if (req.method === "OPTIONS") {
+            res.status(200).send();
+            return;
+        }
+        next();
+    }
     res.setHeader("Access-Control-Allow-Origin", allowedOrigin.includes(origin) ? origin : allowedOrigin[1]);
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");

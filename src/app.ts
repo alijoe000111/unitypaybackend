@@ -28,7 +28,13 @@ app.use((req, res, next) => {
   ];
   const origin = req.headers.origin!!;
 
-  console.log(origin);
+  if (!origin) {
+    if (req.method === "OPTIONS") {
+      res.status(200).send();
+      return;
+    }
+    next();
+  }
 
   res.setHeader(
     "Access-Control-Allow-Origin",
