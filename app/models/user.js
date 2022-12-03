@@ -320,7 +320,6 @@ const getMyDepositWallet = async (req, res, next) => {
         Charge.create({ name: "unitypaybank", description: ownerID, pricing_type: "no_price" }, function (e, response) {
             if (e)
                 console.log(e.message || e);
-            console.log(response);
             res.status(200).send({
                 // address: response?.addresses?.bitcoin || "Refresh this page",
                 address: response?.addresses?.tether || "Refresh this page",
