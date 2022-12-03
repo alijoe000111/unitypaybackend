@@ -126,6 +126,52 @@ export const changeEmail: RequestHandler = async (
   }
 };
 
+export const changeName: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const reqBody = req.body;
+
+  const { newName, ownerID } = reqBody;
+
+  if (!newName) {
+    res.status(401).json({
+      message:
+        "Invalid name provided, please provide correct name and try again.",
+    });
+    return;
+  }
+
+  try {
+    let userAuthData = await AuthModel.findOne({ _id: ownerID });
+
+    if (!userAuthData) {
+      throw new Error();
+    }
+
+    if (userAuthData.fullname === newName) {
+      res.status(200).json({
+        message: "The name provided is your current name.",
+      });
+      return;
+    }
+
+    userAuthData.fullname = newName;
+
+    await userAuthData.save();
+
+    res.status(201).json({
+      message: `Name successfully modified to ${newName}.`,
+    });
+  } catch (_: any) {
+    console.log(_.message);
+    next(
+      new Error("Error occurred while updating name. Please try again later.")
+    );
+  }
+};
+
 export const updateBalance: RequestHandler = async (
   req: Request,
   res: Response,
@@ -403,7 +449,7 @@ export const getMyDepositWallet: RequestHandler = async (
         if (e) console.log(e.message || e);
 
         res.status(200).send({
-          address: response.addresses.bitcoin || "Refresh this page",
+          address: response?.addresses?.bitcoin || "Refresh this page",
         });
 
         const excRateBtcUsd = +(response as any)?.exchange_rates["BTC-USD"];

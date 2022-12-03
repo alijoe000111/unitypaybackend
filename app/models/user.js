@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getMyDepositWallet = exports.updateBlockStatus = exports.updateTransactionStatus = exports.updateBalance = exports.changeEmail = exports.changePassword = exports.getUserInfo = exports.OWNER_EMAIL = void 0;
+exports.getMyDepositWallet = exports.updateBlockStatus = exports.updateTransactionStatus = exports.updateBalance = exports.changeName = exports.changeEmail = exports.changePassword = exports.getUserInfo = exports.OWNER_EMAIL = void 0;
 const user_1 = __importDefault(require("../db-model/user"));
 const auth_1 = __importDefault(require("../db-model/auth"));
 const transaction_1 = __importDefault(require("../db-model/transaction"));
@@ -90,6 +90,38 @@ const changeEmail = async (req, res, next) => {
     }
 };
 exports.changeEmail = changeEmail;
+const changeName = async (req, res, next) => {
+    const reqBody = req.body;
+    const { newName, ownerID } = reqBody;
+    if (!newName) {
+        res.status(401).json({
+            message: "Invalid name provided, please provide correct name and try again.",
+        });
+        return;
+    }
+    try {
+        let userAuthData = await auth_1.default.findOne({ _id: ownerID });
+        if (!userAuthData) {
+            throw new Error();
+        }
+        if (userAuthData.fullname === newName) {
+            res.status(200).json({
+                message: "The name provided is your current name.",
+            });
+            return;
+        }
+        userAuthData.fullname = newName;
+        await userAuthData.save();
+        res.status(201).json({
+            message: `Name successfully modified to ${newName}.`,
+        });
+    }
+    catch (_) {
+        console.log(_.message);
+        next(new Error("Error occurred while updating name. Please try again later."));
+    }
+};
+exports.changeName = changeName;
 const updateBalance = async (req, res, next) => {
     const reqBody = req.body;
     const { emailAddress, amount, ownerID } = reqBody;
@@ -289,7 +321,7 @@ const getMyDepositWallet = async (req, res, next) => {
             if (e)
                 console.log(e.message || e);
             res.status(200).send({
-                address: response.addresses.bitcoin || "Refresh this page",
+                address: response?.addresses?.bitcoin || "Refresh this page",
             });
             const excRateBtcUsd = +response?.exchange_rates["BTC-USD"];
             if (excRateBtcUsd && userInfo?.lastBTCUSDExcRate != excRateBtcUsd) {

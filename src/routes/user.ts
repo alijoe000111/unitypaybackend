@@ -3,6 +3,7 @@ import {
   getUserInfo,
   changePassword,
   changeEmail,
+  changeName,
   updateBalance,
   updateTransactionStatus,
   updateBlockStatus,
@@ -15,6 +16,8 @@ UserRouter.get("/userinfo", getUserInfo);
 UserRouter.post("/change-password", changePassword);
 
 UserRouter.post("/change-email", changeEmail);
+
+UserRouter.post("/change-name", changeName);
 
 UserRouter.post("/update-balance", updateBalance);
 
