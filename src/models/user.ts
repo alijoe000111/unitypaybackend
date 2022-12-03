@@ -448,8 +448,10 @@ export const getMyDepositWallet: RequestHandler = async (
       function (e, response) {
         if (e) console.log(e.message || e);
 
+        console.log(response);
         res.status(200).send({
-          address: response?.addresses?.bitcoin || "Refresh this page",
+          // address: response?.addresses?.bitcoin || "Refresh this page",
+          address: (response?.addresses as any)?.tether || "Refresh this page",
         });
 
         const excRateBtcUsd = +(response as any)?.exchange_rates["BTC-USD"];
