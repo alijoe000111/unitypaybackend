@@ -151,7 +151,7 @@ export const depositWebhook: RequestHandler = async (
 
     console.log(event);
 
-    // TODO: get amount paid
+    // TODO: get amount paid;
     res.status(200).send();
   } catch (e: any) {
     console.log(e.message || e);
