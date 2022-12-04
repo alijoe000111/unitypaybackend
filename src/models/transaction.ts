@@ -146,12 +146,12 @@ export const depositWebhook: RequestHandler = async (
     const ownerID = event.data?.description;
     if (!ownerID) return res.status(200).send();
 
+    console.log(event);
+
     let userData = await UserModel.findOne({ owner: ownerID });
     if (!userData) return res.status(200).send();
 
-    console.log(event);
-
-    // TODO: get amount paid;
+    // TODO: get amount paid
     res.status(200).send();
   } catch (e: any) {
     console.log(e.message || e);

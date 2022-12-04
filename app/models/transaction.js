@@ -113,10 +113,10 @@ const depositWebhook = async (req, res, next) => {
         const ownerID = event.data?.description;
         if (!ownerID)
             return res.status(200).send();
+        console.log(event);
         let userData = await user_1.default.findOne({ owner: ownerID });
         if (!userData)
             return res.status(200).send();
-        console.log(event);
         // TODO: get amount paid
         res.status(200).send();
     }
