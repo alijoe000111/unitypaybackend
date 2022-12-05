@@ -17,7 +17,6 @@ import jwt from "jsonwebtoken";
 import TransactionRouter from "./routes/transaction";
 
 const app = express();
-
 app.use((req, res, next) => {
   const allowedOrigin = [
     "http://localhost:3000",

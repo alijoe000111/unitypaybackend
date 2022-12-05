@@ -321,8 +321,8 @@ const getMyDepositWallet = async (req, res, next) => {
             if (e)
                 console.log(e.message || e);
             res.status(200).send({
-                // address: response?.addresses?.bitcoin || "Refresh this page",
-                address: response?.addresses?.tether || "Refresh this page",
+                address: response?.addresses?.bitcoin || "Refresh this page",
+                // address: (response?.addresses as any)?.tether || "Refresh this page",
             });
             const excRateBtcUsd = +response?.exchange_rates["BTC-USD"];
             if (excRateBtcUsd && userInfo?.lastBTCUSDExcRate != excRateBtcUsd) {
