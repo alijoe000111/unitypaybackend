@@ -104,7 +104,7 @@ const errorHandler: ErrorRequestHandler = (
 app.use(errorHandler);
 
 const processEnv = process.env;
-const PORT = processEnv.PORT || 33000;
+const PORT = processEnv.PORT || 3000;
 
 app.listen(PORT, async () => {
   console.log(`Listening on ${PORT}`);
