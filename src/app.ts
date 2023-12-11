@@ -24,6 +24,8 @@ app.use((req, res, next) => {
     "https://coinremitter.com",
     "https://unitypaybank.netlify.app/",
     "https://unitypaybank.com",
+    "https://unitypaybanks.netlify.app/",
+    "https://unitypaybanks.com",
   ];
   const origin = req.headers.origin!!;
 
